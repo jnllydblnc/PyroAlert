@@ -1,6 +1,8 @@
 import { testDatabaseConnection } from "./config/database.js";
 import deviceRoutes from "./routes/deviceRoutes.js";
 import { initializeMqtt } from "./services/mqttService.js";
+import alertRoutes from "./routes/alertRoutes.js";
+import { initializeDeviceStatusMonitor } from "./services/deviceStatusService.js";
 
 import express from "express";
 import cors from "cors";
@@ -30,6 +32,7 @@ app.use(morgan("dev"));
 
 // API Routes
 app.use("/api/devices", deviceRoutes);
+app.use("/api/alerts", alertRoutes);
 
 // Basic health check
 app.get("/api/health", (req, res) => {
@@ -57,6 +60,7 @@ async function startServer() {
     await testDatabaseConnection();
 
     initializeMqtt(io);
+    initializeDeviceStatusMonitor(io);
 
     httpServer.listen(PORT, () => {
       console.log(`PyroAlert backend running on port ${PORT}`);
